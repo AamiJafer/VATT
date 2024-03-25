@@ -206,7 +206,7 @@ class CreditNote(models.Model):
     partystatus=models.CharField(max_length=100,null=True,blank=True)
     party=models.ForeignKey(Party,on_delete= models.CASCADE,null=True,blank=True)
     salesinvoice=models.ForeignKey(SalesInvoice,on_delete= models.CASCADE,null=True,blank=True)
-    reference_no=models.IntegerField(null=True,default=0,blank=True)
+    reference_no=models.IntegerField(null=True,blank=True,default=0)
     returndate=models.DateField()
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     vat = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -242,6 +242,6 @@ class CreditNoteHistory(models.Model):
         ('Updated', 'Updated'),
     ]
     action = models.CharField(max_length=20, choices=CHOICES)
-    hist_date = models.DateTimeField(auto_now_add=True)
+    hist_date = models.DateTimeField(auto_now_add=True,null=True)
     
 #End

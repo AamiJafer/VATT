@@ -1625,9 +1625,8 @@ def saveCreditnote(request):
         salesinvoice = SalesInvoice.objects.get(company=cmp, party=party)
         creditnote.salesinvoice = salesinvoice
       except SalesInvoice.DoesNotExist:
-        # Handle the case where SalesInvoice does not exist
-        pass
-      creditnote.save()
+        creditnote.salesinvoice = None
+    creditnote.save()
 
     CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
     # item_names = request.POST.getlist('item_name')
