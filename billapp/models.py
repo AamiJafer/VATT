@@ -206,7 +206,7 @@ class CreditNote(models.Model):
     partystatus=models.CharField(max_length=100,null=True,blank=True)
     party=models.ForeignKey(Party,on_delete= models.CASCADE,null=True,blank=True)
     salesinvoice=models.ForeignKey(SalesInvoice,on_delete= models.CASCADE,null=True,blank=True)
-    reference_no=models.IntegerField(null=True,blank=True,default=0)
+    reference_no=models.IntegerField(null=True,blank=True)
     returndate=models.DateField()
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     vat = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -222,7 +222,7 @@ class CreditNoteReference(models.Model):
 
 class CreditNoteItem(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
-    credit_note = models.ForeignKey(CreditNote, related_name='items', on_delete=models.CASCADE)
+    credit_note = models.ForeignKey(CreditNote, on_delete=models.CASCADE,null=True,blank=True)
     company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
     items=models.ForeignKey(Item,on_delete= models.CASCADE,null=True,blank=True)
     item = models.CharField(max_length=255,null=True)
@@ -236,7 +236,7 @@ class CreditNoteItem(models.Model):
 class CreditNoteHistory(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
     company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
-    credit_note_history = models.ForeignKey(CreditNote, related_name='credit_note', on_delete=models.CASCADE)    
+    credit_note_history = models.ForeignKey(CreditNote, on_delete=models.CASCADE,null=True,blank=True)    
     CHOICES = [
         ('Created', 'Created'),
         ('Updated', 'Updated'),

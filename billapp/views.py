@@ -1621,14 +1621,16 @@ def saveCreditnote(request):
       
       print(party.party_name)
       creditnote.party=party
+      creditnote.save()
       try:
         salesinvoice = SalesInvoice.objects.get(company=cmp, party=party)
         creditnote.salesinvoice = salesinvoice
+        creditnote.save()
       except SalesInvoice.DoesNotExist:
         creditnote.salesinvoice = None
-    creditnote.save()
+        creditnote.save()
+      
 
-    CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
     # item_names = request.POST.getlist('item_name')
     # for item_name in item_names:
     #   print(item_name)
@@ -1658,10 +1660,26 @@ def saveCreditnote(request):
       mapped=zip(item_name,quantity,price,tax,discount,hsn,total)
       mapped=list(mapped)
       for ele in mapped:
+        print("Element:", ele)
+        hsn = ele[5]
+        quantity = ele[1]
+        tax = ele[3]
+        price = ele[2]
+        discount = ele[4]
+        total = ele[6]
+        print("HSN:", hsn)
+        print("Quantity:", quantity)
+        print("Tax:", tax)
+        print("Price:", price)
+        print("Discount:", discount)
+        print("Total:", total)
+
         item_name_parts = ele[0].split()
-        
+        print("item_name_parts: ",item_name_parts)
         item_id = item_name_parts[0]
+        print("item_id: ",item_id)
         items = Item.objects.get(pk=item_id)
+        print("items are: ",items)
         it=Item.objects.get(company=cmp, id = item_id).itm_name
         print("item_name:", it)
 
@@ -1677,13 +1695,12 @@ def saveCreditnote(request):
                   price=ele[2],
                   discount=ele[4],
                   total=ele[6])
-      if 'save_new' in request.POST:
-        return redirect('SalesReturn')
-      else:
-        return redirect('listout_page')
+    # CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
+    if 'save_new' in request.POST:
+      return redirect('SalesReturn')
+    else:
+      return redirect('listout_page') 
     
-  else:  
-    return redirect('SalesReturn')
   
 def listout_page(request):
   if request.user.is_company:
