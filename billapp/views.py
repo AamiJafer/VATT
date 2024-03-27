@@ -1380,7 +1380,8 @@ def creditNote(request):
       return redirect('SalesReturn') 
     else:
       return render(request,'CreditNote.html',{'usr':request.user})
-  return redirect('SalesReturn') 
+  else:
+    return redirect('SalesReturn') 
 
 def SalesReturn(request):
     if request.user.is_company:
@@ -1489,7 +1490,7 @@ def get_partydetails(request):
     party_id= request.POST.get('id').split(" ")[0]
     party=Party.objects.get(company=cmp,id=party_id)
     print(party.party_name)
-    sales_invoice = SalesInvoice.objects.filter(party=party).first()
+    sales_invoice = SalesInvoice.objects.filter(company=cmp,party=party).first()
 
     balance=party.openingbalance
     phone=party.contact
@@ -1507,7 +1508,6 @@ def get_partydetails(request):
       placeofsupply = None
 
     return JsonResponse({'address':address,'balance':balance,'phone':phone,'invoiceno':invoiceno,'invoicedate':invoicedate,'placeofsupply':placeofsupply,'payment':payment})
-
 
 def saveItem(request):
   if request.method == 'POST':
@@ -1593,7 +1593,7 @@ def get_item_dropdown(request):
   options={}
   option_objects=Item.objects.filter(company=cmp)
   for option in option_objects:
-    options[option.id]=[option.id, option.itm_name]
+    options[option.id]=[option.id, option.itm_name, option.itm_hsn, option.itm_sale_price,option.itm_vat]
   return JsonResponse(options)
 
 def saveCreditnote(request):
@@ -1622,15 +1622,13 @@ def saveCreditnote(request):
       print(party.party_name)
       creditnote.party=party
       creditnote.save()
-      try:
-        salesinvoice = SalesInvoice.objects.get(company=cmp, party=party)
-        creditnote.salesinvoice = salesinvoice
+      salesinvoice = SalesInvoice.objects.filter(company=cmp, party=party)
+      if salesinvoice:
+        idsales=request.POST['invoiceno']
+        creditnote.salesinvoice=SalesInvoice.objects.get(invoice_no=idsales,company=cmp)
         creditnote.save()
-      except SalesInvoice.DoesNotExist:
-        creditnote.salesinvoice = None
-        creditnote.save()
-      
-
+      else:
+        pass
     # item_names = request.POST.getlist('item_name')
     # for item_name in item_names:
     #   print(item_name)
@@ -1695,13 +1693,12 @@ def saveCreditnote(request):
                   price=ele[2],
                   discount=ele[4],
                   total=ele[6])
-    # CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
+    CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
     if 'save_new' in request.POST:
       return redirect('SalesReturn')
     else:
       return redirect('listout_page') 
-    
-  
+                                     
 def listout_page(request):
   if request.user.is_company:
       cmp = request.user.company
@@ -1750,10 +1747,9 @@ def updateCreditnote(request,pk):
   if request.method=="POST":
     if request.user.is_company:
       cmp = request.user.company
-      
     else:
       cmp = request.user.employee.company
-      
+
     usr = CustomUser.objects.get(username=request.user)
     creditnote=CreditNote.objects.get(id=pk)
     creditnote.user=request.user
@@ -1857,7 +1853,6 @@ def sharebill(request,id):
         try:
             if request.method == 'POST':
                 emails_string = request.POST['email_ids']
-
                 # Split the string by commas and remove any leading or trailing whitespace
                 emails_list = [email.strip() for email in emails_string.split(',')]
                 print("ekamisl",emails_list)

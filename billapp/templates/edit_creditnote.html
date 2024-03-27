@@ -272,7 +272,7 @@
                                     <td class="p-3">{{forloop.counter}}</td>
                                     <td class="p-3">
                                         <div style="display: flex;">
-                                            <div class="myDropDown">
+                                            <div class="myDropDown" style="width: max-content;">
                                                 <select id="item_name_{{forloop.counter}}" class="form-control item-name" name="item_name" required>      
                                                     <option disabled>Select Item</option>
                                                     <option selected value="{{ i.items.id }} {{ i.hsn }} {{ i.price }} {{ i.tax }}">

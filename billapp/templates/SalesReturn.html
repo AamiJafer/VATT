@@ -864,25 +864,25 @@
                     add3:$("#addField3").val(),
                 },
                 beforeSend: function(xhr, settings) {
-        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-    },
-    success: function(response) {
-        if (response.success) {
-            // Party saved successfully
-            document.getElementById("unitmodalform").reset();
-            $('#unitModal').modal('hide');
-            reloadParty();
-        } else if (response.error_message) {
-            // Error occurred while saving party
-            alert(response.error_message);
-        }
-    },
-    error: function(xhr, status, error) {
-        // Error occurred in AJAX request
-        console.error(xhr.responseText);
-        // Handle the error gracefully if needed
-    }
-});
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Party saved successfully
+                        document.getElementById("unitmodalform").reset();
+                        $('#unitModal').modal('hide');
+                        reloadParty();
+                    } else if (response.error_message) {
+                        // Error occurred while saving party
+                        alert(response.error_message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Error occurred in AJAX request
+                    console.error(xhr.responseText);
+                    // Handle the error gracefully if needed
+                }
+            });
         });
 
         function reloadParty(){
@@ -931,10 +931,7 @@
                         $('#salesinvoiceid').hide();
                         $('#invoiceno').val('');
                         $('#invoicedate').val('');
-                    
-
                     }
-
                     // $('#placesupply').val(data.placeofsupply);
                     $('#paymethod').val(data.payment);
                 }
@@ -1052,14 +1049,14 @@
 
             $('.table tbody').append(newRow);
             $.ajax({
-                url: "{% url 'item_dropdown' %}", // Replace this with the actual URL to fetch items
+                url: "{% url 'get_item_dropdown' %}", // Replace this with the actual URL to fetch items
                 type: "GET",
                 success: function (data) {
                     var dropdown = $('#item_name_' + serialNumber);
                 dropdown.empty();
                 dropdown.append(`<option disabled selected>Select Item</option>`);
                 $.each(data, function(key, value) {
-                    dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + " " + value[2] + " " + value[3] + " " + value[4]));
+                    dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + " " +value[2] + " " + value[3] + " " + value[4]));
                 });
                 },
                 error: function (xhr, status, error) {
@@ -1142,7 +1139,7 @@
 
         function reloadItem() {
     $.ajax({
-        url: "{% url 'item_dropdown' %}",
+        url: "{% url 'get_item_dropdown' %}",
         type: "GET",
         dataType: "json",
         success: function(data) {
@@ -1150,18 +1147,14 @@
                 var row = $(this);
                 var drop = row.find('select'); // Assuming dropdowns are <select> elements
                 var existingVal = drop.val();
-                drop.empty();
+                var optionExists = false;
                 
-                var defaultOption = new Option("Select Item", "", true, true);
-                defaultOption.disabled = true;
-                drop.append(defaultOption);
-                
+                drop.append(`<option disabled selected>Select Item</option>`);
                 $.each(data, function(key, value) {
-                    var newOption = new Option(value[1], value[0], false, false);
-                    drop.append(newOption);
+                    drop.append($('<option></option>').attr('value', key).text(value[1]).val(value[0] + " " +value[2] + " " + value[3] + " " + value[4]));
                 });
 
-                if(existingVal != ""){
+                if (optionExists) {
                     drop.val(existingVal);
                 }
             });
