@@ -1612,48 +1612,33 @@ def saveCreditnote(request):
     grandtotal=request.POST['grandTotal']
     party_status = request.POST.get('partystatus')
     print("Partystatus: ",party_status)
-    creditnote = CreditNote.objects.create(user=usr, company=cmp,reference_no=reference_no,partystatus=party_status,returndate=return_date, subtotal=subtotal, vat=vat, adjustment=adjustment, grandtotal=grandtotal)
-    
+    creditnote_curr = CreditNote(user=usr, company=cmp,reference_no=reference_no,partystatus=party_status,returndate=return_date, subtotal=subtotal, vat=vat, adjustment=adjustment, grandtotal=grandtotal)
+    creditnote_curr.save()
     if party_status=='partyon':
       party_details = request.POST.get('party_details')
       party_id = party_details.split()[0]
-      party = Party.objects.get(pk=party_id)
+      party = Party.objects.get(pk=party_id,company=cmp)
       
       print(party.party_name)
-      creditnote.party=party
-      creditnote.save()
+      creditnote_curr.party=party
+      creditnote_curr.save()
       salesinvoice = SalesInvoice.objects.filter(company=cmp, party=party)
       if salesinvoice:
         idsales=request.POST['invoiceno']
-        creditnote.salesinvoice=SalesInvoice.objects.get(invoice_no=idsales,company=cmp)
-        creditnote.save()
+        creditnote_curr.salesinvoice=SalesInvoice.objects.get(invoice_no=idsales,company=cmp)
+        creditnote_curr.save()
       else:
         pass
-    # item_names = request.POST.getlist('item_name')
-    # for item_name in item_names:
-    #   print(item_name)
-    # for item_data in item_names:
-
-    #   item_data_parts = item_data.split()
-
-    #     # Extract individual values
-    #   itemid = item_data_parts[0]
-    #   itmhsn = item_data_parts[1]
-    #   itmsale_price = item_data_parts[2]
-    #   itmvat = item_data_parts[3]
-
-    #   print("Item ID:", itemid)
-    #   print("Item HSN:", itmhsn)
-    #   print("Item Sale Price:", itmsale_price)
-    #   print("Item VAT:", itmvat)
-
-    item_name = request.POST.getlist('item_name')
-    quantity = request.POST.getlist('qty')
-    price = request.POST.getlist('price')
-    tax = request.POST.getlist('tax')
-    discount = request.POST.getlist('discount')
-    hsn = request.POST.getlist('hsn')
-    total = request.POST.getlist('total')
+    
+    item_name =tuple(request.POST.getlist('item_name'))
+    print("item name: ",item_name)
+    quantity =tuple(request.POST.getlist('qty'))
+    price =tuple(request.POST.getlist('price'))
+    tax =tuple(request.POST.getlist('tax'))
+    discount = tuple(request.POST.getlist('discount'))
+    hsn = tuple(request.POST.getlist('hsn'))
+    total = tuple(request.POST.getlist('total'))
+    
     if len(item_name) == len(quantity) == len(price) == len(tax) == len(discount) == len(hsn) == len(total) and item_name and quantity and price and tax and discount and hsn and total:
       mapped=zip(item_name,quantity,price,tax,discount,hsn,total)
       mapped=list(mapped)
@@ -1676,12 +1661,12 @@ def saveCreditnote(request):
         print("item_name_parts: ",item_name_parts)
         item_id = item_name_parts[0]
         print("item_id: ",item_id)
-        items = Item.objects.get(pk=item_id)
+        items = Item.objects.get(pk=item_id,company=cmp)
         print("items are: ",items)
         it=Item.objects.get(company=cmp, id = item_id).itm_name
         print("item_name:", it)
-
-        creditnoteitem=CreditNoteItem.objects.create(
+        creditnote = CreditNote.objects.get(reference_no=creditnote_curr.reference_no,company=cmp)  
+        creditnoteitem=CreditNoteItem(
                   user=usr,
                   credit_note=creditnote,
                   company=cmp,
@@ -1693,7 +1678,10 @@ def saveCreditnote(request):
                   price=ele[2],
                   discount=ele[4],
                   total=ele[6])
-    CreditNoteHistory.objects.create(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
+        creditnoteitem.save()
+    creditnote = CreditNote.objects.get(reference_no=creditnote_curr.reference_no,company=cmp)
+    cr=CreditNoteHistory(user=usr,company=cmp,credit_note_history=creditnote,action='Created')
+    cr.save()
     if 'save_new' in request.POST:
       return redirect('SalesReturn')
     else:
@@ -1716,9 +1704,9 @@ def edit_creditnote(request,pk):
   parties = Party.objects.filter(company=cmp)
   items = Item.objects.filter(company=cmp)
   unit = Unit.objects.filter(company=cmp)
-  creditnote_curr=CreditNote.objects.get(id=pk)
+  creditnote_curr=CreditNote.objects.get(id=pk,company=cmp)
   reference=creditnote_curr.reference_no
-  creditnote_items=CreditNoteItem.objects.filter(credit_note=creditnote_curr)
+  creditnote_items=CreditNoteItem.objects.filter(credit_note=creditnote_curr,company=cmp)
   for item in creditnote_items:
     print(f"Item ID: {item.id}")
     print(f"Credit Note: {item.item}")
@@ -1736,7 +1724,7 @@ def delete_creditnote(request,pk):
     cmp = request.user.company
   else:
     cmp = request.user.employee.company
-  creditnote=CreditNote.objects.get(id=pk)
+  creditnote=CreditNote.objects.get(id=pk,company=cmp)
   reference_no=creditnote.reference_no
   cr=CreditNoteReference.objects.create(user=request.user,company=cmp,reference_no=reference_no)
   cr.save()
@@ -1751,7 +1739,7 @@ def updateCreditnote(request,pk):
       cmp = request.user.employee.company
 
     usr = CustomUser.objects.get(username=request.user)
-    creditnote=CreditNote.objects.get(id=pk)
+    creditnote=CreditNote.objects.get(id=pk,company=cmp)
     creditnote.user=request.user
     creditnote.company=cmp
     creditnote.returndate=request.POST['returndate']
@@ -1766,7 +1754,7 @@ def updateCreditnote(request,pk):
     if creditnote.partystatus=='partyon':
       party_details = request.POST.get('party_details')
       party_id = party_details.split()[0]
-      party = Party.objects.get(pk=party_id)
+      party = Party.objects.get(pk=party_id,company=cmp)
       party.contact=request.POST.get('party_phone')
       party.payment=request.POST.get('paymethod')
       party.save()
@@ -1795,7 +1783,7 @@ def updateCreditnote(request,pk):
     if len(item_name) == len(quantity) == len(price) == len(tax) == len(discount) == len(hsn) == len(total) and item_name and quantity and price and tax and discount and hsn and total:
       mapped=zip(item_name,quantity,price,tax,discount,hsn,total)
       mapped=list(mapped)
-      credit_note_items = CreditNoteItem.objects.filter(credit_note=creditnote)
+      credit_note_items = CreditNoteItem.objects.filter(credit_note=creditnote,company=cmp)
 
       item_ids=[]
       for ele in mapped:
@@ -1840,9 +1828,9 @@ def credit_templates(request,pk):
       cmp = request.user.company
   else:
       cmp = request.user.employee.company 
-  creditnote_curr=CreditNote.objects.get(id=pk)
+  creditnote_curr=CreditNote.objects.get(id=pk,company=cmp)
   reference=creditnote_curr.reference_no
-  creditnote_items=CreditNoteItem.objects.filter(credit_note=creditnote_curr)
+  creditnote_items=CreditNoteItem.objects.filter(credit_note=creditnote_curr,company=cmp)
   context = {'usr':request.user,'company':cmp,'creditnoteitem_curr':creditnote_items,
            'creditnote':creditnote_curr,'reference':reference}
   return render(request,'creditnote_temp.html',context)
@@ -1880,7 +1868,7 @@ def sharebill(request,id):
                 parties = Party.objects.filter(company=cmp)
                 items = Item.objects.filter(company=cmp)
                 unit = Unit.objects.filter(company=cmp)
-                creditnote_curr=CreditNote.objects.get(id=id)
+                creditnote_curr=CreditNote.objects.get(id=id,company=cmp)
                 reference=creditnote_curr.reference_no
                 creditnote_items=CreditNoteItem.objects.filter(company=cmp,credit_note=creditnote_curr)
                 context={'usr':request.user,
@@ -1920,9 +1908,9 @@ def history_page(request,pk):
       cmp = request.user.company
   else:
       cmp = request.user.employee.company
-  creditnote=CreditNote.objects.get(id=pk)
+  creditnote=CreditNote.objects.get(id=pk,company=cmp)
   reference=creditnote.reference_no
-  credit_hist=CreditNoteHistory.objects.filter(credit_note_history=pk) 
+  credit_hist=CreditNoteHistory.objects.filter(credit_note_history=pk,company=cmp) 
   context={'c_usr':request.user,'c_comp':cmp,'creditnote':creditnote,'credit_hist':credit_hist,'reference':reference}
   return render(request,'historyPage.html',context)
 

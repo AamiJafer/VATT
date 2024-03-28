@@ -37,7 +37,7 @@
                             <tr>
                                 <td>{{forloop.counter}}</td>
                                 <td>{{c.hist_date|date:'Y-m-d'}}</td>
-                                <td>{{c.company.company_name}}</td>
+                                <td>{{c.user.first_name}} {{c.user.last_name}}</td>
                                 <td style="color: red;">{{c.action}}</td>
                             </tr>
                             {% endfor %}

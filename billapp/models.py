@@ -236,6 +236,7 @@ class CreditNoteItem(models.Model):
 class CreditNoteHistory(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True,blank=True)
     company = models.ForeignKey(Company,on_delete= models.CASCADE,null=True,blank=True)
+    
     credit_note_history = models.ForeignKey(CreditNote, on_delete=models.CASCADE,null=True,blank=True)    
     CHOICES = [
         ('Created', 'Created'),
