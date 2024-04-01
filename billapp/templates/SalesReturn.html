@@ -265,7 +265,7 @@
                                     <td class="p-3">
                                         <div style="display: flex;">
                                             <div class="myDropDown" style="width: max-content;">
-                                                <select id="item_name" class="form-control item-name" name="item_name" required>      
+                                                <select id="item_name" class="form-control item-name" name="item_name[]" required>      
                                                     <option selected disabled>Select Item</option>
                                                     {% for item in items %}
                                                     <option value="{{ item.id }} {{ item.itm_hsn }} {{ item.itm_sale_price }} {{ item.itm_vat }}">{{ item.itm_name }}</option>
@@ -280,13 +280,13 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn" name="hsn"></td>
-                                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty" name="qty" value="0" required></td>
-                                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price" name="price" min="0" value="0"></td>
-                                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax" name="tax">
+                                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn" name="hsn[]"></td>
+                                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty" name="qty[]" value="0" required></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price" name="price[]" min="0" value="0"></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax" name="tax[]">
                                     <input type="text" class="form-control small-input vatper-input" id="vatper" name="vatper" hidden></td>
-                                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount" name="discount" value="0"></td>
-                                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total" name="total" value="0"></td>
+                                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount" name="discount[]" value="0"></td>
+                                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total" name="total[]" value="0"></td>
                                     <td class="p-3"><button type="button" class="btn button_border delete-row-button">
                                         <span class="fa fa-minus"></span>
                                     </button></td>
@@ -1023,7 +1023,7 @@
                     <td class="p-3">
                         <div style="display: flex;">
                             <div class="myDropDown">
-                                <select id="item_name_${serialNumber}" class="form-control item-name" name="item_name">
+                                <select id="item_name_${serialNumber}" class="form-control item-name" name="item_name[]">
                                     <option value="" selected disabled>Select Item</option> 
                                 </select>
                             </div>
@@ -1034,13 +1034,13 @@
                             </div>
                         </div>
                     </td>
-                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn_${serialNumber}" name="hsn"></td>
-                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty_${serialNumber}" name="qty" value="0" required></td>
-                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price_${serialNumber}" name="price" value="0"></td>
-                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax_${serialNumber}" name="tax">
+                    <td class="p-3"><input type="text" class="form-control small-input hsn-input" id="hsn_${serialNumber}" name="hsn[]"></td>
+                    <td class="p-3"><input type="number" class="form-control small-input qty-input" id="qty_${serialNumber}" name="qty[]" value="0" required></td>
+                    <td class="p-3"><input type="text" class="form-control small-input price-input" id="price_${serialNumber}" name="price[]" value="0"></td>
+                    <td class="p-3"><input type="text" class="form-control small-input tax-input" id="tax_${serialNumber}" name="tax[]">
                     <input type="text" class="form-control small-input vatper-input" id="vatper_${serialNumber}" name="vatper" hidden></td>
-                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount_${serialNumber}" name="discount" value="0"></td>
-                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total_${serialNumber}" name="total" value="0"></td>
+                    <td class="p-3"><input type="number" class="form-control small-input discount-input" id="discount_${serialNumber}" name="discount[]" value="0"></td>
+                    <td class="p-3"><input type="text" class="form-control small-input total-input" id="total_${serialNumber}" name="total[]" value="0"></td>
                     <td class="p-3"><button type="button" class="btn button_border delete-row-button">
                         <span class="fa fa-minus"></span>
                     </button></td>

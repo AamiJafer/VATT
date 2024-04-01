@@ -1392,16 +1392,18 @@ def SalesReturn(request):
     items = Item.objects.filter(company=cmp)
     unit = Unit.objects.filter(company=cmp)
     
-    max_reference_no = CreditNote.objects.filter(company=cmp).aggregate(Max('reference_no'))['reference_no__max']
-    print("max_reference_no",max_reference_no)
-    reference_no = max_reference_no + 1 if max_reference_no is not None else 1
-    print("reference_no",reference_no)
-    if max_reference_no is None:
-       max_reference_no=0
-    print("now max",max_reference_no)
+    try:
+      max_reference_no = CreditNote.objects.filter(company=cmp).last().reference_no
+    except AttributeError:
+      max_reference_no = None
+
+    if max_reference_no is not None:
+        reference_no = max_reference_no + 1
+    else:
+        reference_no = 1
 # Check if there are deleted credit notes in CreditNoteReference
     if CreditNoteReference.objects.filter(company=cmp).exists():
-      last_reference_no = CreditNoteReference.objects.filter(company=cmp).order_by('-id').first().reference_no
+      last_reference_no = CreditNoteReference.objects.filter(company=cmp).last().reference_no
       print("last_reference_no", last_reference_no)
       if int(last_reference_no) > max_reference_no:
         reference_no = int(last_reference_no) + 1
@@ -1603,13 +1605,13 @@ def saveCreditnote(request):
     else:
       cmp = request.user.employee.company
     usr = CustomUser.objects.get(username=request.user)
-    return_date=request.POST['returndate']
-    reference_no=request.POST['refnum']
+    return_date=request.POST.get('returndate')
+    reference_no=request.POST.get('refnum')
     print("reference_no", reference_no)
-    subtotal=request.POST['subtotal']
-    vat=request.POST['disvatper']
-    adjustment=request.POST['adjustment']
-    grandtotal=request.POST['grandTotal']
+    subtotal=request.POST.get('subtotal')
+    vat=request.POST.get('disvatper')
+    adjustment=request.POST.get('adjustment')
+    grandtotal=request.POST.get('grandTotal')
     party_status = request.POST.get('partystatus')
     print("Partystatus: ",party_status)
     creditnote_curr = CreditNote(user=usr, company=cmp,reference_no=reference_no,partystatus=party_status,returndate=return_date, subtotal=subtotal, vat=vat, adjustment=adjustment, grandtotal=grandtotal)
@@ -1630,14 +1632,15 @@ def saveCreditnote(request):
       else:
         pass
     
-    item_name =tuple(request.POST.getlist('item_name'))
+    item_name =request.POST.getlist('item_name[]')
     print("item name: ",item_name)
-    quantity =tuple(request.POST.getlist('qty'))
-    price =tuple(request.POST.getlist('price'))
-    tax =tuple(request.POST.getlist('tax'))
-    discount = tuple(request.POST.getlist('discount'))
-    hsn = tuple(request.POST.getlist('hsn'))
-    total = tuple(request.POST.getlist('total'))
+    quantity =request.POST.getlist('qty[]')
+    print("item qty: ",quantity)
+    price =request.POST.getlist('price[]')
+    tax =request.POST.getlist('tax[]')
+    discount = request.POST.getlist('discount[]')
+    hsn = request.POST.getlist('hsn[]')
+    total = request.POST.getlist('total[]')
     
     if len(item_name) == len(quantity) == len(price) == len(tax) == len(discount) == len(hsn) == len(total) and item_name and quantity and price and tax and discount and hsn and total:
       mapped=zip(item_name,quantity,price,tax,discount,hsn,total)
@@ -1661,7 +1664,7 @@ def saveCreditnote(request):
         print("item_name_parts: ",item_name_parts)
         item_id = item_name_parts[0]
         print("item_id: ",item_id)
-        items = Item.objects.get(pk=item_id,company=cmp)
+        items = Item.objects.get(id=item_id,company=cmp)
         print("items are: ",items)
         it=Item.objects.get(company=cmp, id = item_id).itm_name
         print("item_name:", it)
